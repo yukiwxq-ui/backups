@@ -1,0 +1,6 @@
+
+the working directory tree should be changes
+git ls-tree -r main --name-only
+
+csvtospace.sh
+variables.sh

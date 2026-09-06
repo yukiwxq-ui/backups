@@ -1,0 +1,401 @@
+### Project Notes (Updated)
+
+#### Goal
+My project aim is to fine-tune/QLoRA/LoRA a suitable open-sourced multimodel LLM to extract vector competence data from the user-input scientific pdfs, including text, images, and tables. The model should output the extracted information in a structured csv/json format that can be directlt downloaded by the user. However, the data for finetuning is still being collected, rn there are 23 scientific pdf papers being manually extracted into the dataset   `trait_wnv_vector_comp_no_Turell2000.csv`. This dataset serves as the current gold standard and will be used for training and evaluation. 
+
+I want you to read through, review and improve my work in the file Master_Project, including the model selection, pipeline etc. I want you to re-choose the best model for my project. The current model I use is Qwen2.5-VL-7B-Instruct. My college suggests me that the model Qwen2.5-VL-7B-Instruct is not the best/powerfull model avaible for me to use. He recommend gemma-4-31b-it. You dont have to use this model but critically thinking and analyse and could take this suggestion into consideration. Importantly, the model selection is limited by the hpc gpu provided by the college (≤48GB VRAM). 
+
+The pipeline needs to improve as it is converting pdf into image and then text, pdf
+can directly extract text, such pipeline increases error. The image embedded inside the pdf can be directly extracted. 
+
+Another filter could be added e.g. only browse through the methods and results part, to minimise the token use. 
+
+
+
+
+The broader intention is to expand the existing dataset compiled by Brauer et al. on vector competence and host use by extracting additional data from recently published papers.
+
+
+
+#### Model Selection Rationale
+
+Initially, the use of state-of-the-art closed-source LLMs was considered due to the limited size of the available training dataset. However, this approach was not pursued due to constraints in computational resources and accessibility.
+
+Instead, an open-source multimodal LLM was selected, as it allows for local fine-tuning under the GPU limitations provided by the college.
+
+The fine-tuning approach adopted is **QLoRA (Quantized Low-Rank Adaptation)**, which does not retrain the entire model but instead injects task-specific knowledge efficiently into a pre-trained model.
+
+**Recommended: `Qwen/Qwen2.5-VL-32B-Instruct` with BitsAndBytes 4-bit quantization**
+
+- VRAM at 4-bit: ~22GB weights + ~8GB overhead = ~30GB total — fits 48GB comfortably with headroom for QLoRA fine-tuning later
+- **Why not gemma-4-31b-it**: Qwen2.5-VL is specifically optimised for document/OCR/table understanding (DocVQA, ChartQA benchmark leader). Switching families requires rewriting the processor/inference code and loses the proven document-extraction advantage. Qwen2.5-VL-32B is a 4.5× parameter upgrade on a family already tuned for this exact task.
+- **Why not 72B**: QLoRA fine-tuning of 72B on a 48GB GPU is impractical. The user plans to fine-tune once training data collection is complete.
+- Quantization: `BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16, bnb_4bit_quant_type="nf4")`
+---
+
+#### Model Constraints and Selection
+
+Given the available GPU resources (≤40GB VRAM), the model selection was restricted to:
+
+* Models that fit within memory constraints
+* Multimodal capability (handling both text and images)
+* Strong benchmark performance (e.g., Artificial Analysis Intelligence Index)
+
+Based on these criteria, **Qwen3-VL-8B-Instruct** was selected as the primary model candidate, as it demonstrates superior performance compared to models such as Llama3-8B and Mistral variants in multimodal reasoning tasks.
+
+Current working model (for inference and pipeline development):
+**Qwen2.5-VL-7B-Instruct**
+
+---
+
+#### Pipeline Design
+
+**Input:**
+Scientific PDF papers
+
+**Output:**
+Structured CSV records containing vector competence data
+
+**Pipeline Workflow:**
+
+1. Convert each PDF into page-level images
+2. Use a multimodal model to process:
+
+   * Full-page content
+   * Cropped regions (tables, figures, captions)
+3. Extract candidate records in a strict JSON schema
+4. Store provenance metadata for each record, including:
+
+   * PDF name
+   * Page number
+   * Source type (e.g., table, text, figure)
+   * Evidence region
+5. Perform manual review and correction of extracted records
+6. Export reviewed records into CSV format consistent with the reference dataset
+7. Store corrected records as additional training data for future fine-tuning
+
+---
+
+#### Current Stage
+
+* Model usage: inference-based extraction
+* Workflow: semi-automated data collection with manual validation
+* Focus: building a high-quality dataset rather than full model training
+
+Full fine-tuning (QLoRA) will be conducted after sufficient high-quality training data has been accumulated.
+
+---
+
+#### Summary
+
+This project aims to develop a scalable pipeline for extracting ecological trait data from literature using multimodal LLMs. By combining automated extraction with manual validation and iterative fine-tuning, the system is designed to progressively improve both data coverage and extraction accuracy.
+
+
+
+
+
+
+
+
+#######同步代码到 HPC
+ls -lah /rds/general/user/yw6022/ephemeral/Master_Project/output
+
+rsync -avz \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/Master_Project/output/ \
+~/Desktop/output/
+
+########想重置远端目录 ssh yw6022@login.cx3.hpc.imperial.ac.uk 'rm -rf ~/Master_Project'
+
+########备份ephemeral cp -r /rds/general/user/yw6022/ephemeral/Master_Project/output ~/Master_Project/output_backup
+
+ssh yw6022@login.cx3.hpc.imperial.ac.uk
+qsub -I -q v1_gpu72 -l select=1:ncpus=4:ngpus=1:mem=16gb,walltime=08:00:00
+hostname
+nvidia-smi
+module load tools/prod
+module load Python/3.11.5-GCCcore-13.2.0
+cd /rds/general/user/yw6022/ephemeral/Master_Project
+source venv/bin/activate
+
+python --version
+which python
+which pip
+# 只有第一次才需要：
+hf auth login
+
+python run_extraction.py
+python evaluate.py
+
+qsub vc_extractor/code/extract_test.pbs
+
+Home:
+~/Master_Project
+  ├── code
+  ├── venv
+  ├── run_extraction.py
+  └── vc_extractor/
+
+Ephemeral:
+~/ephemeral/Master_Project/output/
+  ├── candidates
+  ├── pages
+  ├── crops
+  └── reviewed
+
+
+📥 下载 output
+rsync -avz \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/Master_Project/output/ \
+~/Documents/Master_Project/output/
+
+rsync -avz \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/Master_Project/output/2259394
+~/Documents/Master_Project/output/
+
+📤 上传代码
+rsync -av \
+--exclude 'venv/' \
+--exclude '.pdf_venv/' \
+--exclude 'output/' \
+--exclude '__pycache__/' \
+--exclude '*.pyc' \
+--exclude '.git/' \
+--exclude '*.log' \
+--exclude '.DS_Store' \
+~/Documents/Master_Project/ \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/Master_Project/
+
+
+ls /rds/general/user/yw6022/ephemeral/Master_Project/output
+rm -r /rds/general/user/yw6022/ephemeral/Master_Project/output/*
+
+python evaluate_against_reviewed.py 2240664
+python evaluate_against_gold.py 2240664
+
+python run_extraction.py --pdf "pdf/Alto et al. - 2014 - Reproductive Biology and Susceptibility of Florida Culex coronator to Infection with West Nil.pdf"
+
+python run_extraction.py --pdf "pdf/Anderson et al. - 2012 - Horizontal and Vertical Transmission of West Nile Virus Genotype NY99 by Culex salinarius and Genoty.pdf"
+
+python run_extraction.py --pdf "pdf/Kilpatrick et al. - 2010 - Spatial and Temporal Variation in Vector Competence of Culex pipiens and Cx. restuans Mosquitoes for.pdf"
+
+python run_extraction.py --pdf "pdf/Turell et al. - 2005 - An Update on the Potential of North American Mosquitoes (Diptera Culicidae) to Transmit West Nile V.pdf"
+
+
+data/vector_competence/trait_wnv_vector_comp_northamerica_litrev.csv
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+仅仅连上 HPC 查看当前任务的进度（查看作业 2175946.pbs-7）
+如果你现在只想随时跟踪我们刚才提交的任务进度，请依次执行以下命令：
+
+1. 连接到 HPC:
+
+bash
+ssh yw6022@login.cx3.hpc.imperial.ac.uk
+提示输入密码时，键入并回车：Wxqicyear3!!
+
+2. 登录成功后，进入项目文件夹:
+
+bash
+cd ~/Master_Project
+3. 查看作业排队与执行状态（任意选一个即可）:
+
+bash
+# 查看你自己账号下所有的任务状态（是否有挂起的Q，或者执行中的R）
+qstat -u yw6022
+# 查看当前的具体作业状态
+qstat 2175946.pbs-7
+4. 实时查看模型推理日志（按 Ctrl + C 可以退出查看）:
+
+bash
+# 查看标准输出（能看到处理到了第几篇 PDF，评估指标等）
+tail -f extract.out
+# 查看错误日志（有报错的话会在这里显示，没报错就是空的或只有警告）
+tail -f extract.err
+(看完后，输入 exit 即可断开 HPC)
+
+
+/opt/zotero/zotero --no-sandbox
+
+
+如果你之后在本地环境又修改了代码或者新增了 PDF 文件，想要从零开始自己操作一次完整流程，请严格按照这三个大步骤在本地终端执行：
+
+第 1 步：将本地的最新代码和 PDF 上传同步到 HPC (在你的本地机器执行)
+
+bash
+rsync -av --exclude "venv/" --exclude ".pdf_venv/" --exclude "__pycache__/" --exclude "*.git/" /home/user/Documents/Master_Project/ yw6022@login.cx3.hpc.imperial.ac.uk:~/Master_Project/
+提示输入密码时，键入：Wxqicyear3!!
+
+第 2 步：登录 HPC 并将任务提交给超算节点执行 (在你的本地机器执行)
+
+bash
+ssh yw6022@login.cx3.hpc.imperial.ac.uk
+此时会进入 HPC。输入密码后，在 HPC 中继续执行：
+
+bash
+cd ~/Master_Project
+# 提交计算任务
+qsub extract_batch.pbs
+(终端会返回一个新的作业 ID，比如：2180000.pbs-7，记住它。之后可以使用前面的 qstat 命令来查看是否跑完。提交完后输入 exit 回到你的本地电脑。)
+
+第 3 步：任务跑完后，把提取好的 JSON 结果和日志下载回本地电脑 (任务在 HPC 上完成后，在你的本地机器执行以下命令拉取文件)
+
+bash
+# 下载解析出的 output 文件夹中的所有 JSON 以及评估数据
+rsync -av yw6022@login.cx3.hpc.imperial.ac.uk:~/Master_Project/output/ /home/user/Documents/Master_Project/output/
+# 下载 extract.out 和 extract.err 作为本地记录存档
+rsync -av yw6022@login.cx3.hpc.imperial.ac.uk:~/Master_Project/extract.* /home/user/Documents/Master_Project/
+这套流程走完，你就可以直接在刚才写好代码的地方，利用最新下载到 output 文件夹里的模型生成文件，与人工提取的 gold data 进行本地的精准对比了！
+
+
+
+
+
+Culex restuans (Diptera: Culicidae) in the upper Midwest: a review of ecology, biology, control, and contributions to human WNV in the region Purchased
+Cassandra Durden , Kristina Lopez , Anna Drexler
+- The ArboNET mosquito pool data analyzed is available by request. For requests, please contact: dvbid2@cdc.gov.
+
+Asaia spp. exposure for improving mosquito mass-rearing, and the effects on Culex pipiens pipiens vector competence for West Nile virus
+Alessandro Roman, Charlotte Linthout, Ben Raymond, Constantianus J.M. Koenraadt*
+- https://lifesciences.datastations.nl/dataset.xhtml?persistentId=doi:10.17026/LS/NWTCLU
+
+Additional file 1 of Laboratory evidence on the vector competence of European field-captured Culex theileri for circulating West Nile virus lineages 1 and 2
+- https://digital.csic.es/handle/10261/392986
+
+Patterns of West Nile virus vector co-occurrence and spatial overlap with human cases across Europe
+- The vector competence for different species of Culex mosquitoes was calculated from results of published experimental infections: Culex univittatus sl. = 0.92 [42], Cx. modestus = 0.54 [43], Cx. torrentium = 0.36 [21] and Cx. pipiens = 0.16 [43].
+
+提取数据的时候还需要再加一列相关数据是什么virus的，因为我不一定只提取关于WNV的数据
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. Results
+(template section you can fill later with final numbers)
+A total of [X] candidate records were extracted from 50 scientific papers, including the initial 23-paper development corpus and the additional literature incorporated into the full study. After manual review, [X] corrected records were retained for final analysis and model adaptation.
+Evaluation against reviewed outputs yielded an overall field-level accuracy of [X%], while evaluation against gold/reference outputs yielded an overall field-level accuracy of [X%]. Accuracy varied substantially among papers, indicating that extraction success depended strongly on document structure, visual layout and the completeness of treatment-level information.
+Per-paper results showed that documents with clearly formatted tables generally produced more stable and accurate records than papers in which key values were distributed across figure captions, prose and visually fragmented regions. Matching performance improved when auxiliary signals such as p_infect, p_dissem and p_trans were incorporated into record alignment, particularly in cases where n_min or wnv_dose were absent from candidate records.
+Field-level summaries indicated that [insert best-performing fields] were extracted more reliably than [insert most difficult fields]. The final reviewed dataset supported descriptive and comparative analysis of WNV vector competence across the literature, including studies from Europe and other regions.
+
+4. Discussion
+This master’s thesis developed a multimodal extraction pipeline for West Nile virus vector competence data and applied it to a 50-paper literature corpus to produce a structured dataset suitable for comparative analysis. The central finding of the project is methodological as much as technical: biologically meaningful extraction depends not only on model strength, but on rigorous schema design, record integrity and ecologically informed evaluation.
+One of the most important insights was that schema alignment is foundational. If candidate outputs contain fields that are absent from reviewed or gold records, then evaluation partly measures incompatibility of representation rather than real extraction quality. Restricting extraction to a schema directly aligned with the target dataset therefore improved interpretability and made the resulting records more useful for biological analysis.
+A second major lesson concerns the biological meaning of a record. In vector competence work, a valid observation is not simply a set of numbers pulled from a paper. It is a treatment-specific combination of taxon, conditions and outcomes. Extraction quality therefore depends heavily on whether those treatment-level identities are preserved. This explains why record matching became such an important part of the workflow. Improving pairing with biologically relevant auxiliary variables did not weaken the standard of correctness; it reduced artefactual penalties due to structurally poor comparison.
+The thesis is biologically meaningful because better access to structured vector competence data directly strengthens trait-based disease ecology. Competence is one of the most important determinants of whether a mosquito species can contribute to enzootic maintenance or spillover transmission, but its relevance is often obscured by how difficult the literature is to synthesise at scale. By improving the extraction and structuring of these data, the project helps remove a key bottleneck that limits broader comparative work, including VPI-style approaches that integrate competence with host use (Bauer et al., 2026). 
+The project also shows why MLLMs should be used critically in ecological synthesis. Multimodal models are powerful tools for document interpretation, but they remain vulnerable to hallucinated structure, treatment merging and partial extraction. For numerically sensitive biological tasks, human validation remains essential. The human-in-the-loop design is therefore not a weakness of the thesis but one of its strengths, because it ensures that automation is deployed in a way that preserves biological reliability.
+The final 50-paper design also reconnects this thesis to the broader VPI and One Health motivation. By constructing a larger, reviewed WNV competence dataset with global and European coverage, the project contributes directly to the trait data infrastructure needed for broader comparative analysis. Even where the immediate focus remains vector competence rather than host use, the study provides the extraction, schema and evaluation logic that later integrative analyses depend on.
+Several limitations remain. The literature itself is heterogeneous, and not all papers present evidence in equally extractable forms. Some source ambiguity may remain even after review. In addition, while the final dataset supports broader comparative analysis, it still represents a subset of the total WNV literature. Nevertheless, the thesis demonstrates that multimodal extraction can meaningfully accelerate trait dataset construction when paired with rigorous review and evaluation.
+Overall, the study argues that scalable biological literature extraction is not simply a matter of model benchmarking. It requires defining the correct biological record, aligning output structure to downstream analytical needs, and building an evaluation process that distinguishes genuine extraction error from artefacts introduced by schema mismatch or poor record matching. That is the principal methodological contribution of this master’s thesis.
+
+5. Conclusion
+This master’s thesis developed a multimodal, schema-constrained pipeline for extracting West Nile virus vector competence data from scientific literature and using the resulting structured data for broader comparative analysis. By combining PDF image processing, multimodal LLM extraction, manual review, parameter-efficient model adaptation and record-based evaluation, the project establishes a reproducible workflow for turning heterogeneous literature into structured biological evidence.
+Its significance is both technical and biological. Technically, it demonstrates how multimodal models can be adapted for scientific document extraction under realistic hardware constraints. Biologically, it improves the trait data infrastructure needed for comparative work on WNV vectors and for broader frameworks such as the Vector Potential Index. The thesis therefore contributes not only a practical extraction system but also a methodological argument for how AI-assisted ecological data synthesis should be designed.
+
+
+
+
+| Period | Paper                                                                                                                                                                                                  |                                                    DOI / PMID | Source            |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------: | ----------------- |
+| Pre    | Balenghien et al. 2008, *Vector competence of some French Culex and Aedes mosquitoes for West Nile virus*                                                                                              |                   DOI: 10.1089/vbz.2007.0266 · PMID: 18447623 | ([PubMed][1])     |
+| Pre    | Jiang et al. 2010, *Experimental studies on comparison of the potential vector competence of four species of Culex mosquitoes in China to transmit West Nile virus*                                    |                                                PMID: 20939372 | ([PubMed][2])     |
+| Pre    | Dodson et al. 2012, *Effects of larval rearing temperature on immature development and West Nile virus vector competence of Culex tarsalis*                                                            |                 DOI: 10.1186/1756-3305-5-199 · PMID: 22967798 | ([PubMed][3])     |
+| Pre    | Micieli et al. 2013, *Vector competence of Argentine mosquitoes (Diptera: Culicidae) for West Nile virus (Flaviviridae: Flavivirus)*                                                                   |                                                PMID: 23926785 | ([PubMed][4])     |
+| Pre    | Fortuna et al. 2015, *Experimental studies on comparison of the vector competence of four Italian Culex pipiens populations for West Nile virus*                                                       |                                                PMID: 26383834 | ([PubMed][5])     |
+| Pre    | Fortuna et al. 2015, *Evaluation of vector competence for West Nile virus in Italian Stegomyia albopicta (= Aedes albopictus)*                                                                         |                                                PMID: 26382099 | ([PubMed][6])     |
+| Pre    | Wagner et al. 2018, *Vector competence of field populations of the mosquito species Aedes japonicus japonicus and Culex pipiens from Switzerland for two West Nile virus strains*                      |                                                PMID: 29082585 | ([PubMed][7])     |
+| Pre    | Veronesi et al. 2018, *Experimental Evaluation of Infection, Dissemination, and Transmission Rates for Two West Nile Virus Strains in European Aedes japonicus Under a Fluctuating Temperature Regime* |               DOI: 10.1007/s00436-018-5886-7 · PMID: 29705877 | ([PubMed][8])     |
+| Pre    | Jansen et al. 2019, *Culex torrentium: A Potent Vector for the Transmission of West Nile Virus in Central Europe*                                                                                      |                       DOI: 10.3390/v11060492 · PMID: 31146418 | ([PubMed][7])     |
+| Pre    | Holicki et al. 2020, *West Nile Virus Lineage 2 Vector Competence of Indigenous Culex and Aedes Mosquitoes from Germany at Temperate Climate Conditions*                                               |                       DOI: 10.3390/v12050561 · PMID: 32438619 | ([PubMed][9])     |
+| Pre    | Sudeep et al. 2020, *Vector competence of Aedes vittatus (Bigot) mosquitoes from India for Japanese encephalitis, West Nile, Chandipura and Chittoor viruses*                                          |                                                PMID: 34472507 | ([PubMed][10])    |
+| Pre    | Giayetto et al. 2021, *Dose dependence of susceptibility and transmission for an Argentinean West Nile virus strain in local Culex pipiens quinquefasciatus*                                           |                                                PMID: 33493344 | ([PubMed][11])    |
+| Pre    | Jansen et al. 2021, *Vector Competence of the Invasive Mosquito Species Aedes koreicus for West Nile Virus and Other Arboviruses from Europe*                                                          |                                                PMID: 34960776 | ([PubMed][12])    |
+| Pre    | Jansen et al. 2023, *Vector Competence of Northern European Culex pipiens and Culex torrentium Mosquitoes for West Nile Virus and Sindbis Virus*                                                       |                                                PMID: 36992301 | ([PubMed][13])    |
+| Pre    | Martinet et al. 2023, *Assessing vector competence of mosquitoes from northeastern France to West Nile virus and Usutu virus*                                                                          |                                                PMID: 37276229 | ([PubMed][14])    |
+| Pre    | Soto et al. 2023, *Belgian Culex pipiens pipiens are competent vectors for West Nile virus while Culex modestus are competent vectors for Usutu virus*                                                 |            DOI: 10.1371/journal.pntd.0011649 · PMID: 37729233 | ([PubMed][15])    |
+| Post   | Fiacre et al. 2024, *Different viral genes modulate virulence in model mammal hosts and Culex pipiens vector competence in Mediterranean basin lineage 1 West Nile virus strains*                      |              DOI: 10.3389/fmicb.2023.1324069 · PMID: 38298539 | ([Frontiers][16]) |
+| Post   | Bohers et al. 2024, *Aedes albopictus is a competent vector of five arboviruses affecting human health, greater Paris, France, 2023*                                                                   | DOI: 10.2807/1560-7917.ES.2024.29.20.2400271 · PMID: 38757289 | ([PubMed][17])    |
+| Post   | Linthout et al. 2024, *The potential role of the Asian bush mosquito Aedes japonicus as spillover vector for West Nile virus in the Netherlands*                                                       |              DOI: 10.1186/s13071-024-06279-5 · PMID: 38886805 | ([PubMed][18])    |
+| Post   | Joseph et al. 2024, *Eilat virus (EILV) causes superinfection exclusion against West Nile virus (WNV) in a strain-specific manner in Culex tarsalis mosquitoes*                                        |                    DOI: 10.1099/jgv.0.002017 · PMID: 39189607 | ([PubMed][19])    |
+| Post   | Marmé et al. 2024, *Vector Competence of Aedes aegypti from São Tomé and Príncipe for West Nile Virus Transmission*                                                                                    |          DOI: 10.3390/microorganisms12102038 · PMID: 39458347 | ([PubMed][20])    |
+| Post   | Gallichotte et al. 2024, *WNV and SLEV coinfection in avian and mosquito hosts: impact on viremia, antibody responses, and vector competence*                                                          |                    DOI: 10.1128/jvi.01041-24 · PMID: 39324792 | ([PubMed][21])    |
+| Post   | da Moura et al. 2024, *Vector competence of Culex quinquefasciatus from Santiago Island, Cape Verde, to West Nile Virus: exploring the potential effect of the vector native Wolbachia*                |              DOI: 10.1186/s13071-024-06609-7 · PMID: 39716303 | ([PubMed][22])    |
+| Post   | Ferdous et al. 2024, *Multiple bloodmeals enhance dissemination of arboviruses in three medically relevant mosquito genera*                                                                            |              DOI: 10.1186/s13071-024-06531-y · PMID: 39427222 | ([PubMed][23])    |
+| Post   | Burgas-Pau et al. 2025, *Laboratory evidence on the vector competence of European field-captured Culex theileri for circulating West Nile virus lineages 1 and 2*                                      |              DOI: 10.1186/s13071-025-06763-6 · PMID: 40188104 | ([PubMed][24])    |
+| Post   | Fay et al. 2025, *Rising temperatures contribute to West Nile virus diversification and increased transmission potential*                                                                              |              DOI: 10.1038/s41598-025-09284-5 · PMID: 40646045 | ([PubMed][25])    |
+| Post   | Roman et al. 2025, *Asaia spp. exposure for improving mosquito mass-rearing, and the effects on Culex pipiens pipiens vector competence for West Nile virus*                                           |            DOI: 10.1371/journal.pone.0330703 · PMID: 40839618 | ([PLOS][26])      |
+| Post   | Goossens et al. 2026, *Vector competence of Belgian Anopheles plumbeus mosquitoes for West Nile virus under different temperature conditions*                                                          |                               DOI: 10.1186/s13071-026-07346-9 | ([Springer][27])  |
+
+[1]: https://pubmed.ncbi.nlm.nih.gov/18447623/?utm_source=chatgpt.com "Vector competence of some French Culex and Aedes ..."
+[2]: https://pubmed.ncbi.nlm.nih.gov/20939372/?utm_source=chatgpt.com "Experimental studies on comparison of the potential vector ..."
+[3]: https://pubmed.ncbi.nlm.nih.gov/22967798/?utm_source=chatgpt.com "Effects of larval rearing temperature on immature development ..."
+[4]: https://pubmed.ncbi.nlm.nih.gov/23926785/?utm_source=chatgpt.com "Culicidae) for West Nile virus (Flaviviridae: Flavivirus) - PubMed"
+[5]: https://pubmed.ncbi.nlm.nih.gov/26383834/?utm_source=chatgpt.com "Experimental studies on comparison of the vector ..."
+[6]: https://pubmed.ncbi.nlm.nih.gov/26382099/?utm_source=chatgpt.com "Evaluation of vector competence for West Nile virus in ..."
+[7]: https://pubmed.ncbi.nlm.nih.gov/31146418/?utm_source=chatgpt.com "A Potent Vector for the Transmission of West Nile Virus in ..."
+[8]: https://pubmed.ncbi.nlm.nih.gov/29705877/?utm_source=chatgpt.com "Experimental Evaluation of Infection, Dissemination, and ..."
+[9]: https://pubmed.ncbi.nlm.nih.gov/32438619/?utm_source=chatgpt.com "West Nile Virus Lineage 2 Vector Competence of ..."
+[10]: https://pubmed.ncbi.nlm.nih.gov/32162489/?utm_source=chatgpt.com "Comparison of vector competence of Aedes vexans Green ..."
+[11]: https://pubmed.ncbi.nlm.nih.gov/33493344/?utm_source=chatgpt.com "Dose dependence of susceptibility and transmission for an ..."
+[12]: https://pubmed.ncbi.nlm.nih.gov/34960776/?utm_source=chatgpt.com "Vector Competence of the Invasive Mosquito Species ..."
+[13]: https://pubmed.ncbi.nlm.nih.gov/36992301/?utm_source=chatgpt.com "Vector Competence of Northern European Culex pipiens ..."
+[14]: https://pubmed.ncbi.nlm.nih.gov/37276229/?utm_source=chatgpt.com "Assessing vector competence of mosquitoes from ..."
+[15]: https://pubmed.ncbi.nlm.nih.gov/37729233/?utm_source=chatgpt.com "Belgian Culex pipiens pipiens are competent vectors for ..."
+[16]: https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2023.1324069/full?utm_source=chatgpt.com "Different viral genes modulate virulence in model mammal ..."
+[17]: https://pubmed.ncbi.nlm.nih.gov/38757289/?utm_source=chatgpt.com "Aedes albopictus is a competent vector of five arboviruses ..."
+[18]: https://pubmed.ncbi.nlm.nih.gov/38886805/?utm_source=chatgpt.com "The potential role of the Asian bush mosquito Aedes ..."
+[19]: https://pubmed.ncbi.nlm.nih.gov/39189607/?utm_source=chatgpt.com "Eilat virus (EILV) causes superinfection exclusion against ..."
+[20]: https://pubmed.ncbi.nlm.nih.gov/39458347/?utm_source=chatgpt.com "Vector Competence of Aedes aegypti from São Tomé and ..."
+[21]: https://pubmed.ncbi.nlm.nih.gov/39324792/?utm_source=chatgpt.com "WNV and SLEV coinfection in avian and mosquito hosts"
+[22]: https://pubmed.ncbi.nlm.nih.gov/39716303/?utm_source=chatgpt.com "exploring the potential effect of the vector native Wolbachia"
+[23]: https://pubmed.ncbi.nlm.nih.gov/39427222/?utm_source=chatgpt.com "Multiple bloodmeals enhance dissemination of arboviruses in ..."
+[24]: https://pubmed.ncbi.nlm.nih.gov/40188104/?utm_source=chatgpt.com "Laboratory evidence on the vector competence of ..."
+[25]: https://pubmed.ncbi.nlm.nih.gov/40646045/?utm_source=chatgpt.com "Rising temperatures contribute to West Nile virus ... - PubMed"
+[26]: https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0330703&utm_source=chatgpt.com "Asaia spp. exposure for improving mosquito mass-rearing ..."
+[27]: https://link.springer.com/article/10.1186/s13071-026-07346-9?utm_source=chatgpt.com "Vector competence of Belgian Anopheles plumbeus ..."
+
+
+
+
+
+ 
+https://vectorbyte.crc.nd.edu/vectraits-columndefs
+
+ 
+https://vectorbyte.crc.nd.edu/vectraits-columndefs
+
+

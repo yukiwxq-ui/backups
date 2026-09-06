@@ -1,0 +1,73 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !Mode:: "TeX:UTF-8"
+% Tailored for: Ecological / Environmental Data Analyst roles
+
+\documentclass{my-resume}
+\usepackage{linespacing_fix}
+\usepackage{cite}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\headerNoPhoto{%
+  \name{Xiaoqi Wu}
+  \contactInfo{+86 13776020628}{yukiwxq@gmail.com}{Currently based in: London / Suzhou}{Ecological \& Environmental Data Analysis \textbar\ Shanghai / Suzhou / Hangzhou}
+}
+
+\section{Education}
+\entry{Imperial College London}{2025.09 - 2026.09}{MSc Computational Methods in Ecology and Evolution}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Curriculum}: Quantitative methods in ecology and evolutionary biology, including data science, \textbf{GIS}, genomics, and bioinformatics
+\end{itemize}
+\entry{Imperial College London}{2022.09 - 2025.07}{BSc Biological Sciences}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Relevant Coursework}: Ecology and Evolution, Fundamentals of Ecology, Behavioural Ecology, Field Skills in Ecology, Global Change Biology, Biodiversity and Conservation Biology, Programming and Statistics
+\end{itemize}
+
+\section{Internship \& Engagement}
+\entry{Shanghai Sunherb Pharmaceutical Technology Co., Ltd.}{2024.07 - 2024.09}{Analytical Engineer \textperiodcentered\ Analytical Department}{Shanghai}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Data Analysis}: Independently carried out sample pre-treatment, HPLC system operation, and data analysis under strict quality-control procedures, ensuring accuracy and reliability -- building cross-domain quantitative data-analysis experience
+\end{itemize}
+
+\section{Research \& Project Experience}
+
+\entry{Evaluating Multimodal LLM Extraction for Vector Trait Curation: High Precision with Structure-Dependent Record Recovery}{2025.12 - 2026.08}{}{London}
+\role{Python, Gemma 4 31B IT (multimodal LLM), PyMuPDF, Docling, prompt engineering, JSON Schema validation, bipartite record-matching evaluation, pytest}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Benchmark Construction}: Designed a weighted greedy diversity-selection algorithm to select 20 papers (spanning trait types, reporting formats, and data sources) from VecTraits' 40,000+-row, 334-paper raw export; built a 2,335-record manually curated development benchmark and a 431-record held-out test set; reduced the 91-column VecTraits schema to a 22-field extraction schema aligned with the MIReVTD reporting standard -- a reusable quantitative QC framework applicable to ecological data curation
+  \item \textbf{Multimodal Extraction Pipeline}: Built a multimodal evidence pipeline combining PyMuPDF full-text extraction, Docling table-structure parsing, and 150 DPI figure/table rendering, fed into Gemma 4 31B IT (a 256K-context multimodal LLM) via prompt engineering and JSON Schema-constrained output; iterated across 11 prompt versions, reaching a development-set conditional macro field F1 of 0.810
+  \item \textbf{Rigorous Evaluation \& Results}: Designed a bipartite record-matching evaluation framework (row-set, conditional-field, and end-to-end field metrics); evaluated the locked pipeline on the held-out test set, achieving row precision of 1.000 and conditional macro field F1 of 0.729 -- confirming a "high-precision, structure-dependent recall" profile suited to human-in-the-loop curation
+\end{itemize}
+
+\entry{Modelling the Impact of Climate Change on \textit{Aedes aegypti} Population Dynamics in Florida}{2025.03 - 2025.06}{}{London}
+\role{R, deSolve, ggplot2, ODEs, statistical validation (RMSE, Pearson, Spearman)}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Model Adaptation \& Validation}: Adapted a published tropical ODE compartment model to simulate \textit{Aedes aegypti} population dynamics in Collier County, Florida under temperature/rainfall effects; validated against 53 weeks of surveillance data (RMSE=1.65, Pearson r=0.29, Spearman $\rho$=0.30)
+  \item \textbf{Outcome}: Optimized time-lag ($\tau=-2$ weeks) and a rainfall scaling factor; proposed model improvements (anthropogenic water sources, spatial heterogeneity, uncertainty quantification)
+\end{itemize}
+
+\entry{Macroecology Analysis on Trochilidae: Testing Latitudinal Gradients and Ecological Rules}{2024.10 - 2024.12}{}{London}
+\role{R, ggplot2, caper, GLM, PGLS}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Hypothesis Testing}: Tested the latitudinal diversity gradient (LDG), Bergmann's rule, and Rapoport's rule using AVONET data and a phylogenetic tree, applying GLM and PGLS to model species richness against body mass, range size, and latitude
+  \item \textbf{Findings}: Results strongly supported the LDG; Bergmann's rule was significant under a naive GLM but lost significance once phylogenetic signal was controlled for (PGLS) -- a result that demonstrates the methodological rigor of separating statistical correlation from phylogenetic confounding
+\end{itemize}
+
+\entry{Effect of Environmental Flower Colour Ratios on Insect Colour Preference}{2024.09 - 2024.10}{}{Cape Town}
+\role{Field experiment, R (t-test, Pearson correlation)}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Experimental Design}: Designed a 5-colour pan-trap field experiment across 6 sites during a South Africa field course to study insect flower-visiting colour preferences relative to environmental flower colour ratios
+  \item \textbf{Results}: Yellow, blue, and white traps all significantly attracted insects over baseline (p$<$0.001); yellow capture rate was positively correlated with the proportion of yellow flowers in the environment (r=0.369, p=0.027)
+\end{itemize}
+
+\section{Skills \& Other}
+\entrySkillsSep
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Data Analysis \& Modelling}: R (ggplot2, dplyr, caper, ape, vegan, deSolve), Python, statistical inference (GLM/Poisson regression, PGLS, Wilcoxon signed-rank, t-tests, Pearson/Spearman correlation), ODE- and difference-equation-based population dynamics modelling
+  \item \textbf{Ecology \& Fieldwork}: field experimental design, biodiversity/environmental surveying, GIS-based spatial analysis, macroecology and phylogenetic comparative analysis (AVONET-scale trait data, PGLS)
+  \item \textbf{Languages}: English (IELTS 7.5), Mandarin Chinese (native), French (A2) \textbar\ \textbf{Interests}: piano, photography, skiing
+\end{itemize}
+
+\end{document}

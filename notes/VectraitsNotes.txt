@@ -1,0 +1,279 @@
+| paper_id  | trait_row_id | trait_name_id | original_trait_name |
+| --------- | ------------ | ------------- | ------------------- |
+| paper_001 | 1            | 2             | fecundity           |
+| paper_001 | 2            | 1             | development time    |
+| paper_001 | 3            | 2             | fecundity           |
+| paper_001 | 4            | 3             | longevity           |
+
+
+trait_row_id 看的是这是这个 paper 里的第几条记录，所以重复的 trait name 也会重复编号不同 row
+
+trait_name_id 看的是这是这个 paper 里的第几个 unique trait name，所以同一个 trait name 在不同 row 上会共享同一个 trait_name_id
+
+The current multimodal extraction setting achieved high recall but very low precision, suggesting that the model is sensitive to trait-like terminology in document images but insufficiently selective about what counts as an OriginalTraitName.
+
+ 
+登陆hpc：
+ssh yw6022@login.cx3.hpc.imperial.ac.uk
+qsub -I -q v1_gpu72 -l select=1:ncpus=4:ngpus=1:mem=16gb,walltime=08:00:00
+hostname
+nvidia-smi
+module load tools/prod
+module load Python/3.11.5-GCCcore-13.2.0
+cd /rds/general/user/yw6022/ephemeral/VecTraitsExtraction
+source .venv/bin/activate
+
+python --version
+which python
+which pip
+python code/0_main.py --help
+
+
+##python -m pip install --upgrade pip
+##pip install pymupdf transformers torch pillow accelerate jsonschema pandas requests pypdf huggingface_hub torchvision
+##pip list | grep -E "PyMuPDF|transformers|torch|Pillow|accelerate|jsonschema|pandas|requests|pypdf|huggingface-hub"
+
+
+同步代码到hpc：
+rsync -av \
+--exclude '.venv/' \
+--exclude '__pycache__/' \
+--exclude '*.pyc' \
+--exclude '.git/' \
+--exclude 'results/runs/' \
+~/Documents/VecTraitsExtraction/ \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/VecTraitsExtraction/
+
+
+第四步：先跑 prompt only （所有pdf）
+python code/0_main.py \
+  --model-config model_config.json \
+  --prompt-version v3 \
+  --run-name promptv3_nofilter_gemma3_p001
+  
+  
+python code/0_main.py \
+--model-config model_config.json \
+--prompt-version v3 \
+--run-name promptv3_nofilter_gemma4_p020
+
+第五步：再跑 prompt + filter
+python code/0_main.py \
+  --model-config model_config.json \
+  --prompt-version v3 \
+  --filter-file data/filters/filter_v1.txt \
+  --run-name promptv3_filterv1_gemma3_p001
+  
+  
+ python code/0_main.py \
+--model-config model_config.json \
+--prompt-version v3 \
+--run-name promptv3_nofilter_gemma4_p020
+
+
+结果同步到本地
+第一步：先看本地已有结果
+ls ~/Documents/VecTraitsExtraction/results/runs
+第二步：如果没有同名文件夹，就直接下载
+mkdir -p ~/Documents/VecTraitsExtraction/results/runs
+rsync -avz \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/VecTraitsExtraction/results/runs/promptv3_nofilter_gemma3_p001/ \
+~/Documents/VecTraitsExtraction/results/runs/promptv3_nofilter_gemma3_p001/
+
+mkdir -p ~/Documents/VecTraitsExtraction/results/runs
+rsync -avz \
+yw6022@login.cx3.hpc.imperial.ac.uk:/rds/general/user/yw6022/ephemeral/VecTraitsExtraction/results/runs/promptv3_filterv1_gemma3_p001/ \
+~/Documents/VecTraitsExtraction/results/runs/promptv3_filterv1_gemma3_p001/
+
+
+
+
+
+
+
+source .venv/bin/activate
+
+python --version
+which python
+which pip
+
+export GEMINI_API_KEY="AIzaSyAH13HWPE15B__Tz2MtRvIWwsIeZ-t7fAE"
+export HF_TOKEN="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"
+
+  
+  
+  
+  
+  python code/extraction/extract_records.py \
+  --model-config config/model_config_gemma4_31b_geminiapi.json \
+  --pdf-dir data/pdfs \
+  --prompt-version record_v4 \
+  --max-papers 15 \
+  --parallel \
+  --max-concurrent-papers 15 \
+  --resume \
+  --run-name gemma4_31b_recordv4_15papers_20260526
+  
+  
+cd code/webapp
+bash start.sh
+
+
+
+
+My recent work has focused on building and testing the evaluation framework for the extraction pipeline. The extraction itself is now running, but the key challenge is how to evaluate the model output fairly, because the model may extract more records than the existing curated VecTraits data contains. So I separated the evaluation into different comparison layers and built a web interface to make the workflow easier to inspect and review.
+
+The evaluation has two main comparisons.
+
+Comparison A tests paper-faithfulness:
+full model output is compared against my manual gold benchmark.
+
+Comparison B tests curator-alignment:
+after I manually select the rows that are suitable for VecTraits-style curation, this subset is compared against the existing curated VecTraits reference.
+
+Then, review-adjusted evaluation is not a separate third comparison. It is a correction layer applied after A and B, where discrepancies can be manually labelled using fixed dropdown options.
+
+This page stores the default reference files: the manual gold benchmark and the curated VecTraits reference. These are not uploaded every time; they are project-level references.
+
+Here I can upload one or more PDFs, choose the model and prompt version, and start an extraction run. The page also shows per-paper progress, so I can see which papers succeeded or failed.
+
+This page shows the full model output before evaluation. I wanted this step because I need to inspect what the model actually extracted before just looking at scores.
+
+This page shows the automatic metrics. Comparison A uses the full model output against the manual gold benchmark. Comparison B uses the selected subset against the curated VecTraits reference.
+
+This page is for review-adjusted evaluation. Instead of manually typing explanations, I use fixed dropdown decisions such as true model error, acceptable match, curator omission, unit equivalent, or row misalignment.
+
+This page compares different runs across prompt versions and models. This is useful for prompt engineering because I can compare precision, recall, record-level F1, macro F1, and field-level performance across versions.
+
+I am not relying on one score only, because different prompts fail in different ways. Some prompts over-extract and have high recall but low precision, while others are very precise but miss many valid records.
+| Metric              | 解释                   |
+| ------------------- | -------------------- |
+| total_model_records | 模型一共提了多少 records     |
+| n_extra_model       | 多提了多少 records        |
+| n_missing_reference | 漏了多少 gold records    |
+| record_precision    | 提出来的 records 有多少是真的  |
+| record_recall       | gold records 有多少被找到了 |
+| record_F1           | record-level balance |
+| macro_F1            | field-level 综合表现     |
+| field-level F1      | 看哪些 columns 表现好/差    |
+| field coverage      | 看哪些字段模型根本没填          |
+The record-level metrics tell me whether the model is over-extracting or under-extracting. The field-level metrics tell me whether the extracted records are correctly filled column by column.
+
+
+
+
+1. Semantic similarity (embedding_evaluator.py) — stub, never runs
+
+All three functions (semantic_similarity, embed_column, batch_similarity) return None. is_available() hardcodes return False. The scoring config has embedding_weight: 0.0 with a TODO comment pointing to sentence-transformers/all-MiniLM-L6-v2. original_trait_def and second_stressor_def are evaluated as plain text fields — no semantic comparison happens anywhere in the actual pipeline.
+
+2. Bundle consistency (bundle_evaluator.py) — stub, never runs
+
+evaluate_bundle() returns {"status": "not_implemented"} unconditionally. The scoring config has bundle_weight: 0.0 with a TODO comment. The run_evaluation.py docstring notes "embedding/bundle blocks skipped gracefully" — neither is called during evaluation.
+
+3. Comparison B — implemented but never run
+
+The code for Comparison B (curator-alignment against the curated VecTraits reference) is fully written and functional. It is triggered when selected_model_subset.csv exists in the run directory. That file requires a human to manually select which model records are appropriate for VecTraits-style curation. No run directory currently contains that file, so Comparison B has always been skipped with status skipped_no_selected_subset in every evaluation run so far.
+
+
+我想要可以batch action，然后可以enable我click and drag快速标注颜色，然后我想要这个页面平均分为两半 左边方reference的table右边放现在的要标注的output table，注意在两个table底下都加上一个可以拖拽的进度条 这样我可以左右拖拽table 因为column太多显示不全，还有就是要把column name 那个row freeze在上面 这样我往下划可以知道这些column
+
+grid view的table column name你怎么顺序都给我换掉了 还有名字也都给我换掉了，不是应该是第一个是original_trait_name。。。之类的吗。 key shortcut也变成freeze的
+
+
+
+i want to scrow the two tables separately, the gold reference and model output waiting for annotate。 我觉得你这两个table显示的有问题啊 为什么会有很多row缺少original trait name的呢 你是不是没有把原始的reference和model output放出来，你放的是matched的rows吗，match之后就出来这样？不应该是一行一行对齐的 而且每一行肯定有original trait name啊，那些extra的怎么都没有显示？？？？？？还是说你只显示了可能有问题存在的 需要我人工review的？你可以把整个原始的match之后的都按照pair显示出来，用什么办法标注一下说是这俩cell准确的/一样的（某种颜色之类的）。另外model output的选择数据的页面column name也是要显示最开始extract的column name和顺序啊 然后要想办法显示所有extract的column啊。，一样的 左边一半屏幕加上显示curated VecTraits reference的table数据 这样我右边才方便对比选择
+给我更能理解的definition 大白话告诉我这些指标测试的是什么 replace现有的definition
+
+id	dataset_id	individual_id	original_id	original_trait_name	original_trait_def	standardised_trait_name	standardised_trait_def	original_trait_value	original_trait_unit	original_error_pos	original_error_neg	original_error_unit	standardised_trait_value	standardised_trait_unit	replicates	habitat	lab_field	ambient_temp	ambient_temp_method	ambient_temp_unit	second_stressor	second_stressor_def	second_stressor_value	second_stressor_unit	time_start	time_end	total_obs_time_value	total_obs_time_unit	total_obs_time_notes	location	location_type	location_date	location_date_precision	coordinate_type	latitude	longitude	interactor1	interactor1common	interactor1wholepart	interactor1number	interactor1kingdom	interactor1phylum	interactor1class	interactor1order	interactor1family	interactor1genus	interactor1species	interactor1stage	interactor1sex	interactor1temp	interactor1temp_unit	interactor1temp_method	interactor1growth_temp	interactor1growth_temp_unit	interactor1growth_dur	interactor1growthd_dur_unit	interactor1growth_type	interactor1acc	interactor1acc_temp	interactor1acc_time	interactor1acc_time_unit	interactor1orig_temp_notes	interactor1orig_time	interactor1orig_time_unit	interactor1size	interactor1size_unit	interactor1size_type	interactor1size_si	interactor1size_unit_si	interactor1den_value	interactor1den_unit	interactor2common	interactor2kingdom	interactor2phylum	interactor2class	interactor2order	interactor2family	interactor2genus	interactor2species	interactor2stage	interactor2temp	interactor2temp_unit	interactor2growth_temp	interactor2growth_temp_unit	figure_table	citation	doi	curated_by_citation	curated_by_doi	submitted_by	contributor_email	notes	default_chart_xaxis	default_chart_category	embargo_release_date	paper_key	paper_id	trait_row_id	trait_name_id
+
+改code
+pipeline
+extraction code跑出来的还是raw model extraction schema
+code 里 validator 的 record fields 仍然包括 replicates, habitat, ambient_temp, ambient_temp_unit, second_stressor, second_stressor_def, second_stressor_value, second_stressor_unit, time_start, time_end, total_obs_time_value, total_obs_time_unit，而不是你文中写的 interactor1number, stressor, stressor_def, stressor_value, stressor_unit, notes。 你的 extraction output CSV 也是用这些旧字段作为 _RECORD_FIELDS，再加上 provenance fields，例如 run_name, paper_id, source_pdf。
+
+
+工作树里本来已有很多无关数据/前端构建改动，我没有回滚或清理它们。
+
+我查了一下，information extraction / structured extraction 里最常见的做法还是：
+
+gold reference
+→ match predicted items to reference items
+→ compute precision, recall, F1
+→ optionally field-level / entity-level score
+→ error analysis
+
+用 23 个 reduced fields 组成 tuple 做 exact duplicate 去重。do not do this, delete this step
+比如 Document Key Information Extraction 里，entity-level F1 是常见 evaluation metric；也就是把抽取出来的 key-value/entity 跟 gold reference 对齐，然后算 precision、recall 和 F1。
+
+在 scientific text structured extraction 里，Dagdelen et al. 用 JSON schema 进行 NER/relation extraction，并报告 precision、recall 和 F1；他们还说明 performance 是基于 exact word-match 的 lower-bound metric。这个跟你现在的 schema-constrained extraction 很接近。
+
+更广泛的 generative IE evaluation 也仍然把 precision、recall 和 F1 作为传统 foundational metrics，但会指出 generative outputs 可能需要 fuzzy/semantic matching 或 manual inspection，因为生成式模型的表达不一定和 reference 完全一致。
+
+最近 complex PDF-to-JSON structured extraction benchmark 也强调类似思路：不同字段需要不同 correctness criteria，比如 identifiers 可以 exact match，quantities 可以 tolerance，names/phrasing 可以 semantic equivalence；arrays/records 需要 alignment，而且 omission 和 hallucination 要区分。
+
+所以你的方法方向是合理的，但可以大幅精简成：
+
+record-level matching + field-level scoring + qualitative error analysis
+
+
+
+Transformer 的基本生成机制是 decoder output 经过 linear transformation 和 softmax 转成 next-token probabilities，所以它是一边看上下文一边预测下一个 token。 对 image 来说，Vision Transformer 这类方法通常会把图像切成 patches，再把这些 patches 投影成 embeddings，变成类似 token sequence 的形式让 transformer 处理。
+
+The model generated structured records through schema-guided conditional generation. The input to the model was not the raw PDF file itself, but a paper-level evidence package containing article text, extracted tables, captions, figure legends and cropped visual evidence. Textual evidence, including the prompt, schema instructions, article text and table text, was tokenised and represented internally as text embeddings. Visual evidence, such as cropped figures or visually complex tables, was processed into image-derived embeddings or visual tokens. These textual and visual representations were then combined within the multimodal model, allowing generation to be conditioned on both document text and visual evidence.
+
+During inference, the model generated the JSON output sequentially as text. Each output token was predicted conditionally on the prompt, the target schema, the evidence package and the tokens already generated. The schema guided the expected output structure by specifying the fields to be returned, while the document evidence provided the source information from which field values were inferred. The model therefore performed schema-guided conditional generation rather than rule-based extraction: it did not apply hand-coded extraction rules or store values in predefined variables, but generated schema-constrained JSON records using patterns learned during pre-training and instruction tuning \citep{vaswani2017attention,google2026gemma4modelcard}.
+
+有两个最终的任务。首先我看到20260623的extraction output覆盖了之前的20260526的output，现在有没有办法保留both而不是覆盖。第一个任务是按照我现有的method writing检查我的code是不是和writing写的方法一致，告诉我不一致的地方 询问我要不要改成writing里的方法。
+第二个是，看你上面给我总结的evaluation output，找出具体原因为什么改了pipeline，evalution metrics的准确率就更低了。你的任务是检查是不是pipeline的问题，哪里能改进。因为我心里没有底把处理input从给model pdf的image，变成了文字+image的package会怎么影响准确率。我附上了另一个组的做的更全的他们的论文你可以参考他的method pipeline，给我总结他的method然后我做的和他的区别。
+
+
+
+
+
+
+
+我让你分析错误类型是为了看哪些是可以通过refine prompt来改善提取的准确度的，OTD不是要original，是要按照我definition的格式生成；notes不需要对比；我们的目的是找到错误 知道原因 找到解决方法并解决，整个系统要standardise化，没有standardise的部分你要提出来，比如说stressor definition得要一个统一的way去填写（它的definition），需要形成一个填写的模板，这种你可以通过总结我golden怎么填写的 来改善prompt里这个column的definition；每一个错误类型都需要这样相应的solution啊！！！我希望把这些solution都想好 放在新的v9里，然后看相应的错误类型有没有改善
+
+
+
+
+Meeting Notes
+1. Results update
+
+So I have a few updates on the results.
+
+Since our last meeting, I've created five more prompt versions to try to improve the model's extraction performance, mainly by increasing both accuracy and recall.
+
+One thing I noticed is that there seems to be a trade-off. The more instructions and constraints I add to improve accuracy, the lower the recall becomes. I think the model is becoming more conservative and therefore extracting fewer records.
+
+So my next step is to figure out exactly which instructions are causing that. I'm planning to add them back one by one and evaluate their individual impact on recall, so hopefully I can find a better balance between precision and recall.
+
+2. Writing update
+
+I've also made some progress on the writing.
+
+I've drafted the Results section based on Version 8 of the prompt. For now I'm just using Version 8 so I can keep the writing moving.
+
+If I end up getting a better-performing version later, I'll simply update the numbers, figures and tables.
+
+3. Question about the project
+
+I've been thinking about one thing recently.
+
+Do you think my project is becoming a bit too computational for a CMEE project?
+
+I feel like I'm mainly developing and evaluating the extraction pipeline, rather than answering a biological research question in the traditional sense.
+
+I just wanted to get your thoughts on whether you think that's okay, or if there's anything you think I should strengthen from the biological side.
+
+I'd also be really interested to hear your overall impression of the project at this stage, before I get too far into the writing.
+
+4. API key
+
+And I have one quick practical question for Stanley.
+
+Do we happen to have a new Gemini API key available?
+
+At the moment I'm still using the free API, and it gets rate-limited quite often. That means I can't process many PDFs at the same time, so each prompt iteration still takes around two hours to finish.
+
+I was just wondering if there's an updated API key available, as that would make running multiple iterations much faster.

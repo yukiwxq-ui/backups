@@ -1,0 +1,74 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !Mode:: "TeX:UTF-8"
+% Tailored for: Biopharma R&D / QC / Analytical roles
+
+\documentclass{my-resume}
+\usepackage{linespacing_fix}
+\usepackage{cite}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\headerNoPhoto{%
+  \name{Xiaoqi Wu}
+  \contactInfo{+86 13776020628}{yukiwxq@gmail.com}{Currently based in: London / Suzhou}{Biopharma R\&D \textbar\ QC \textbar\ Analytical \textbar\ Shanghai / Suzhou / Hangzhou}
+}
+
+\section{Education}
+\entry{Imperial College London}{2025.09 - 2026.09}{MSc Computational Methods in Ecology and Evolution}{London}
+\entry{Imperial College London}{2022.09 - 2025.07}{BSc Biological Sciences}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Relevant Coursework}: Applied Molecular Biology, Genetics, Cell Biology and Genetics, Biochemistry and Microbiology, Bioinformatics, Programming and Statistics
+\end{itemize}
+
+\section{Internship Experience}
+\entry{Shanghai Sunherb Pharmaceutical Technology Co., Ltd.}{2024.07 - 2024.09}{Analytical Engineer \textperiodcentered\ Analytical Department}{Shanghai}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Stability Testing}: Conducted stability testing of client-supplied drug samples using HPLC/UV, focusing on impurity detection and analysis
+  \item \textbf{Data Analysis}: Independently carried out sample pre-treatment, HPLC system operation, and data analysis, ensuring accuracy and reliability of test results
+  \item \textbf{Quality Control}: Identified potential impurities through rigorous quality-control procedures, providing key data to support drug stability assessments -- demonstrating solid technical skills in pharmaceutical analysis and instrument operation
+\end{itemize}
+
+\section{Research \& Project Experience}
+
+\entry{Evaluating Multimodal LLM Extraction for Vector Trait Curation: High Precision with Structure-Dependent Record Recovery}{2025.12 - 2026.08}{}{London}
+\role{Python, Gemma 4 31B IT (multimodal LLM), PyMuPDF, Docling, prompt engineering, JSON Schema validation, pytest}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Benchmark Construction}: Designed a weighted greedy diversity-selection algorithm to select 20 papers from VecTraits' 40,000+-row, 334-paper raw export; built a 2,335-record manually curated development benchmark and a 431-record held-out test set, reduced from VecTraits' 91-column schema to a 22-field extraction schema aligned with the MIReVTD reporting standard
+  \item \textbf{Multimodal Extraction Pipeline}: Combined PyMuPDF text extraction and Docling table-structure parsing to drive Gemma 4 31B IT (a 256K-context multimodal LLM) through 11 iterated prompt versions, reaching a development-set conditional macro field F1 of 0.810
+  \item \textbf{Rigorous Evaluation \& Quality Verification}: Designed a bipartite record-matching evaluation framework and validated the locked pipeline on the held-out test set, achieving row precision of 1.000 and conditional macro field F1 of 0.729 -- reflecting the same rigorous, systematic data-validation mindset applied in pharmaceutical quality control
+\end{itemize}
+
+\entry{Viral Fingerprinting: Population Genetics Analysis Using HERV-K solo-LTR Polymorphism}{2023.11 - 2023.12}{}{London}
+\role{PCR, gel electrophoresis, population genetics analysis}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Lab Work}: Detected genomic polymorphisms across 5 primer sets using PCR and gel electrophoresis, combined with F$_{ST}$ (range 0.0010-0.3659) and HWE ($\chi^2$ test, critical value 3.841) for population genetics analysis
+  \item \textbf{Analysis}: Evaluated the potential and challenges of HERV-K solo-LTR as a population genetic and forensic marker, identifying primer sites significantly deviating from HWE
+  \item \textbf{Outcome}: Completed the full experimental design, lab work, and data analysis workflow; results received distinction
+\end{itemize}
+
+\entry{Bioinformatic Analysis of OCA1A Albinism}{2023.10 - 2023.11}{}{London}
+\role{NCBI, OMIM, Ensembl, UniProt, AlphaFold, ClinVar}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Structural Analysis}: Analyzed the effect of TYR gene mutations on tyrosinase structure and function, focusing on copper-binding domain mutations, using AlphaFold structural predictions
+  \item \textbf{Database Integration}: Performed variant annotation and population-frequency analysis across NCBI, OMIM, Ensembl, UniProt, and ClinVar, covering population-frequency data for 85,874 samples
+  \item \textbf{Outcome}: Completed a bioinformatics report, developing skills in multi-database integration, protein structure prediction, and evolutionary conservation analysis
+\end{itemize}
+
+\entry{Review: Applications and Limitations of Inbred Mouse Strains in Medical Research}{2023.11 - 2023.12}{}{London}
+\role{Literature review, genetic analysis}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Evidence Synthesis}: Systematically described the genetic principles of inbred mouse strains ($>$98\% allelic homozygosity after 20+ generations) and their use in preclinical drug research, e.g. 40 BALB/c mice evaluating a melittin-loaded nanoliposome formulation against free melittin for breast cancer (renal/liver enzyme assays)
+  \item \textbf{Critical Analysis}: Critically analyzed the inbred-mouse model's limitations -- genetic\slash physiological differences from humans, inbreeding depression, and ethical concerns; review received distinction
+\end{itemize}
+
+\section{Skills \& Other}
+\entrySkillsSep
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Molecular \& Biochemical Techniques}: PCR and gel electrophoresis (multi-primer genotyping, e.g. 5-primer-set solo-LTR detection), DNA/RNA extraction (Qiagen kits), protein electrophoresis, Western blotting; population genetics analysis (F$_{ST}$, Hardy-Weinberg equilibrium/$\chi^2$ tests); variant annotation \& protein structure analysis across NCBI, OMIM, Ensembl, UniProt, ClinVar, and AlphaFold
+  \item \textbf{Data Analysis}: R (ggplot2, dplyr), Python, statistical inference (GLM, Wilcoxon signed-rank, t-tests, Pearson correlation), quality-control documentation standards
+  \item \textbf{Languages}: English (IELTS 7.5), Mandarin Chinese (native), French (A2) \textbar\ \textbf{Interests}: piano, skiing
+\end{itemize}
+
+\end{document}

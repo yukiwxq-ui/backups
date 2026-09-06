@@ -1,0 +1,66 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !Mode:: "TeX:UTF-8"
+% Tailored for: Data Analyst / Data Scientist (generalist) roles
+
+\documentclass{my-resume}
+\usepackage{my-resume-zh}
+\usepackage{linespacing_fix}
+\usepackage{cite}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\photoheader{%
+  \name{吴筱琦}
+  \contactInfo{+86 13776020628}{yukiwxq@gmail.com}{现居城市：伦敦/苏州}{意向城市：上海/苏州/杭州 \textbar\ 数据分析师/数据科学家}
+}{../template/photo.jpg}{2.4cm}
+
+\section{教育背景}
+\entry{帝国理工学院 (QS 2)}{2025.09 - 2026.09}{计算生命科学研究型硕士}{伦敦}
+\entry{帝国理工学院 (QS 2)}{2022.09 - 2025.07}{生物科学 本科}{伦敦}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{相关课程}：编程与统计，生物信息学，遗传学，细胞生物学与遗传学，应用分子生物学
+\end{itemize}
+
+\section{实习经历}
+\entry{上海宣泰医药科技有限公司}{2024.07 - 2024.09}{分析工程师 \textperiodcentered\ 分析部}{上海}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{数据分析}：独立完成客户样本的前处理、HPLC 系统操作及数据分析，在严格的质控流程下确保检测结果的准确性和可靠性
+  \item \textbf{流程执行}：使用 HPLC/UV 技术对药品样本进行稳定性检测，系统鉴别潜在杂质，为分析结论提供可追溯的数据支持
+  \item \textbf{质量控制}：通过严格的质控流程系统识别潜在杂质，为产品质量决策提供关键数据支持，展现了保证数据准确性与可追溯性的工程化思维
+\end{itemize}
+
+\section{科研与项目经历}
+
+\entry{多模态大语言模型提取媒介性状数据评估：高精确率与结构依赖型记录召回}{2025.12 - 2026.08}{}{伦敦}
+\role{Python、Gemma 4 31B IT（多模态LLM）、PyMuPDF、Docling、提示工程、JSON Schema 校验、pytest}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{基准构建与提取流程}：设计加权多样性贪心算法从 VecTraits 超4万行、334篇论文中选取20篇，构建2,335条开发基准与431条留出测试集；结合 PyMuPDF/Docling 证据提取，驱动 Gemma 4 31B IT 完成提示工程约束下的性状记录提取，经11轮迭代取得开发集条件宏观字段 F1 0.810
+  \item \textbf{严谨评估}：设计二分图记录匹配评估框架（行集合/条件字段/端到端字段），在留出测试集上验证锁定流程，取得记录精确率 1.000、召回率 0.360、条件宏观字段 F1 0.729
+\end{itemize}
+
+\entry{气候变化对佛罗里达州埃及伊蚊种群动态的影响建模}{2025.03 - 2025.06}{}{伦敦}
+\role{R、deSolve、ggplot2、ODEs、统计验证（RMSE、Pearson、Spearman）}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{模型适配}：将已发表的热带 ODE 房室模型适配至亚热带地理环境，模拟佛罗里达 Collier 县埃及伊蚊种群在温度与降雨影响下的动态变化
+  \item \textbf{模型验证}：基于 53 周本地蚊虫监测数据验证模型（RMSE=1.65，Pearson r=0.29，Spearman $\rho$=0.30），优化时间滞后（$\tau=-2$ 周）与降雨尺度因子，量化模型性能
+  \item \textbf{研究成果}：提出模型改进方向（引入人为水源、空间异质性与不确定性量化），展示端到端建模与数据验证能力
+\end{itemize}
+
+\entry{生态建模与种群动力学模拟}{2024.01 - 2024.02}{}{伦敦}
+\role{R、ggplot2、Lotka-Volterra、逻辑斯蒂增长模型}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{建模项目组}：构建四个种群动力学模型——集合种群、渔业捕捞（MSY）、资源竞争及三物种捕食-被捕食模型，均使用差分方程与随机扩展实现；四项均获 90+ 评分（最高 94 分），展现扎实的算法实现与参数优化能力
+\end{itemize}
+
+\section{技能/其他}
+\entrySkillsSep
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Python 与开发工具}：Python（主力语言），Git，虚拟环境，Claude Code / Cursor 辅助开发；多后端 LLM 集成、提示工程、JSON Schema 校验、pytest 测试、基于 JSON 配置/状态跟踪的异步子进程编排
+  \item \textbf{Web 开发}：FastAPI（路由/服务架构）、React、TypeScript、Vite、Tailwind CSS
+  \item \textbf{数据分析与建模}：R（ggplot2、dplyr、caper、deSolve）、统计推断（GLM、PGLS、Wilcoxon 检验、t 检验、Pearson/Spearman 相关）、基于微分方程的动态系统建模与参数优化
+  \item \textbf{语言}：英语（雅思 7.5），普通话（母语），法语（A2）；\textbf{兴趣爱好}：钢琴，滑雪
+\end{itemize}
+
+\end{document}

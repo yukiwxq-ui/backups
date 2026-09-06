@@ -1,0 +1,67 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !Mode:: "TeX:UTF-8"
+% Tailored for: AI Application Engineer (fresh-grad/R&D track) -- LLM application dev, fine-tuning/RAG-adjacent, effect evaluation
+
+\documentclass{my-resume}
+\usepackage{linespacing_fix}
+\usepackage{cite}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\headerNoPhoto{%
+  \name{Xiaoqi Wu}
+  \contactInfo{+86 13776020628}{yukiwxq@gmail.com}{Currently based in: London / Suzhou}{AI Application Engineer \textbar\ Shanghai / Suzhou / Hangzhou}
+}
+
+\section{Education}
+\entry{Imperial College London}{2025.09 - 2026.09}{MSc Computational Methods in Ecology and Evolution}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Curriculum}: Statistics in R, Ecological and Evolutionary Data Science, and Biological Computing Bootcamp as core statistical-programming and data-science modules, alongside GIS, genomics, and bioinformatics
+\end{itemize}
+\entry{Imperial College London}{2022.09 - 2025.07}{BSc Biological Sciences}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Relevant Coursework}: Programming and Statistics, Bioinformatics, Genetics, Cell Biology and Genetics, Applied Molecular Biology
+\end{itemize}
+
+\section{Internship Experience}
+\entry{Shanghai Sunherb Pharmaceutical Technology Co., Ltd.}{2024.07 - 2024.09}{Analytical Engineer \textperiodcentered\ Analytical Department}{Shanghai}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Data Analysis}: Independently carried out sample pre-treatment, HPLC system operation, and data analysis on client-supplied samples, ensuring accuracy and reliability under strict quality-control procedures
+  \item \textbf{Quality Control}: Systematically identified potential impurities through rigorous quality-control procedures, providing key data to support product quality decisions -- reflecting an engineering mindset toward data accuracy and traceability
+\end{itemize}
+
+\section{Research \& Project Experience}
+
+\entry{Evaluating Multimodal LLM Extraction for Vector Trait Curation: High Precision with Structure-Dependent Record Recovery}{2025.12 - 2026.08}{}{London}
+\role{Python, Gemma 4 31B IT (multimodal LLM), PyMuPDF, Docling, prompt engineering, JSON Schema validation, bipartite record-matching evaluation, pytest}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Benchmark Construction}: Designed a weighted greedy diversity-selection algorithm to select 20 papers (spanning trait types, reporting formats, and data sources) from VecTraits' 40,000+-row, 334-paper raw export; built a 2,335-record manually curated development benchmark and a 431-record held-out test set; reduced the 91-column VecTraits schema to a 22-field extraction schema aligned with the MIReVTD reporting standard
+  \item \textbf{Multimodal Extraction Pipeline}: Built a multimodal evidence pipeline combining PyMuPDF full-text extraction, Docling table-structure parsing, and 150 DPI figure/table rendering, fed into Gemma 4 31B IT (a 256K-context multimodal LLM) to extract provenance-linked trait records from PDF text, tables, and images via prompt engineering and JSON Schema-constrained output; iterated across 11 prompt versions, with the final version reaching a development-set conditional macro field F1 of 0.810
+  \item \textbf{Effect Evaluation \& Issue Diagnosis}: Designed a bipartite record-matching evaluation framework (row-set, conditional-field, and end-to-end field metrics) and systematically classified extraction errors into document-level record omissions versus field-level disagreement; evaluated the locked pipeline on the held-out test set, achieving row precision of 1.000, row recall of 0.360, and conditional macro field F1 of 0.729 -- confirming a "high-precision, structure-dependent recall" profile and providing actionable diagnostics for continued optimization of the model's application performance
+\end{itemize}
+
+\entry{Modelling the Impact of Climate Change on \textit{Aedes aegypti} Population Dynamics in Florida}{2025.03 - 2025.06}{}{London}
+\role{R, deSolve, ggplot2, ODEs, statistical validation (RMSE, Pearson, Spearman)}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Model Adaptation \& Validation}: Adapted a published tropical ODE compartment model to a subtropical geography and validated it against 53 weeks of local mosquito-surveillance data (RMSE=1.65, Pearson r=0.29, Spearman $\rho$=0.30), optimizing time-lag and a rainfall scaling factor
+\end{itemize}
+
+\entry{Ecological Modelling and Population Dynamics Simulation}{2024.01 - 2024.02}{}{London}
+\role{R, ggplot2, Lotka-Volterra, logistic growth model}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Modelling Suite}: Built four population-dynamics models -- metapopulation, fisheries harvesting (MSY), resource competition, and a 3-species predator-prey system, each implemented with difference equations and stochastic extensions; all four scored 90+ (up to 94), demonstrating solid algorithm implementation and parameter-optimization skills
+\end{itemize}
+
+\section{Skills \& Other}
+\entrySkillsSep
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{AI/LLM Engineering}: Multimodal LLM application development (Gemma 4 31B IT), prompt engineering and iterative optimization for NLP information-extraction tasks, JSON Schema-constrained structured output, bipartite record-matching evaluation and error diagnostics, multi-backend LLM integration (Gemini API, Ollama local inference, OpenAI-compatible APIs, HuggingFace multimodal models)
+  \item \textbf{Python \& Tooling}: Python (primary language), Git, virtual environments, pytest testing, async subprocess orchestration with JSON-based config/state tracking, Claude Code / Cursor for AI-assisted development
+  \item \textbf{Web Development}: FastAPI (routers/services architecture), React, TypeScript, Vite, Tailwind CSS
+  \item \textbf{Data Analysis \& Modelling}: R (ggplot2, dplyr, caper, deSolve), statistical inference (GLM, PGLS, Wilcoxon signed-rank, t-tests, Pearson/Spearman correlation), ODE-based dynamic system modelling
+  \item \textbf{Languages}: English (IELTS 7.5), Mandarin Chinese (native), French (A2) \textbar\ \textbf{Interests}: piano, skiing
+\end{itemize}
+
+\end{document}

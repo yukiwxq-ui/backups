@@ -1,0 +1,156 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !Mode:: "TeX:UTF-8"
+
+\documentclass{my-resume}
+\usepackage{linespacing_fix} % disable extra space before next section
+\usepackage{cite}
+
+\begin{document}
+\pagenumbering{gobble} % suppress displaying page number
+
+\headerNoPhoto{%
+  \name{Xiaoqi Wu}
+  \contactInfo{+86 13776020628}{yukiwxq@gmail.com}{Currently based in: London / Suzhou}{Data Analysis \& Ecological Sciences \textbar\ Shanghai / Suzhou / Hangzhou}
+}
+
+\section{Summary}
+MSc Computational Methods in Ecology and Evolution student (Imperial College London) with a strong life-sciences foundation and hands-on skills in R, Python, statistical modelling, bioinformatics, and LLM-based data extraction pipelines. Built an end-to-end LLM pipeline (VecTraits Curation project) for extracting structured trait data from scientific literature, and gained pharmaceutical R\&D exposure as an Analytical Engineer at Shanghai Sunherb Pharmaceutical Technology Co., Ltd. (HPLC/UV stability testing, quality control). Combines rigorous quantitative analysis with clear scientific writing and cross-team collaboration, demonstrated across a master's research project and eleven independent research projects. Looking to bring data-driven analytical rigor to a biopharma R\&D or clinical data role.
+
+\section{Education}
+\entry{Imperial College London}{2025.09 - 2026.09}{MSc Computational Methods in Ecology and Evolution}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Curriculum}: Core quantitative modules in ecology and evolution including Statistics in R, Ecological and Evolutionary Data Science, and Biological Computing Bootcamp, covering statistical programming, data science, GIS, genomics, and bioinformatics
+  \item \textbf{Independent Research}: Undertaking an 8-month independent research project on programming, modelling, and statistical analysis applied to ecological and evolutionary questions
+\end{itemize}
+\entry{Imperial College London}{2022.09 - 2025.07}{BSc Biological Sciences}{London}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Relevant Coursework}: Evolution and Diversity, Biochemistry and Microbiology, Ecology and Evolution, Cell Biology and Genetics, Applied Molecular Biology, Genetics, Fundamentals of Ecology, Behavioural Ecology, Field Skills in Ecology, Bioinformatics, Programming and Statistics, Field Course in African Biology, Biodiversity and Conservation Biology, Global Change Biology, French
+\end{itemize}
+
+\section{Internship \& Engagement}
+\entry{Shanghai Sunherb Pharmaceutical Technology Co., Ltd.}{2024.07 - 2024.09}{Analytical Engineer \textperiodcentered\ Analytical Department}{Shanghai}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Stability Testing}: Conducted stability testing of client-supplied drug samples using HPLC/UV, focusing on impurity detection and analysis
+  \item \textbf{Data Analysis}: Independently carried out sample pre-treatment, HPLC system operation, and data analysis, ensuring accuracy and reliability of test results
+  \item \textbf{Quality Control}: Identified potential impurities through rigorous quality-control procedures, providing key data to support drug stability assessments
+\end{itemize}
+\entry{Shanghai Jianteng Education Technology Co., Ltd.}{2023.07 - 2023.08}{Teaching Assistant \textperiodcentered\ Biochemistry Department}{Shanghai}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Tutoring}: Provided extracurricular tutoring for students preparing for Oxford, Cambridge, and other top universities, well received by international high-school students
+  \item \textbf{Teaching Delivery}: Delivered part of the course fully in English, graded assignments, reviewed homework, conducted mock interviews, and led class discussions, drawing on undergraduate subject knowledge
+  \item \textbf{Results}: Compiled and analyzed requirement documents to help teachers tailor instruction to student needs; helped multiple students secure Cambridge undergraduate offers
+\end{itemize}
+
+\section{Research \& Project Experience}
+
+\entry{Evaluating Multimodal LLM Extraction for Vector Trait Curation: High Precision with Structure-Dependent Record Recovery}{2025.12 - 2026.08}{}{London}
+\role{Python, Gemma 4 31B IT (multimodal LLM), PyMuPDF, Docling, prompt engineering, JSON Schema validation, bipartite record-matching evaluation, pytest}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Benchmark Construction}: Designed a weighted greedy diversity-selection algorithm to select 20 papers (spanning trait types, reporting formats, and data sources) from VecTraits' 40,000+-row, 334-paper raw export; built a 2,335-record manually curated development benchmark and a 431-record held-out test set; reduced the 91-column VecTraits schema to a 22-field extraction schema aligned with the MIReVTD reporting standard
+  \item \textbf{Multimodal Extraction Pipeline}: Built a multimodal evidence pipeline combining PyMuPDF full-text extraction, Docling table-structure parsing, and 150 DPI figure/table rendering, fed into Gemma 4 31B IT (a 256K-context multimodal LLM) to extract provenance-linked trait records from PDF text, tables, and images via prompt engineering and JSON Schema-constrained output; iterated across 11 prompt versions, with the final version reaching a development-set conditional macro field F1 of 0.810
+  \item \textbf{Rigorous Evaluation \& Results}: Designed a bipartite record-matching evaluation framework (row-set, conditional-field, and end-to-end field metrics) with systematic error analysis; evaluated the locked pipeline on the held-out test set, achieving row precision of 1.000, row recall of 0.360, and conditional macro field F1 of 0.729 -- confirming a "high-precision, structure-dependent recall" profile and supporting the pipeline's use as a candidate-record generator within a human-in-the-loop curation workflow
+\end{itemize}
+
+\entry{Modelling the Impact of Climate Change on \textit{Aedes aegypti} Population Dynamics in Florida}{2025.03 - 2025.06}{}{London}
+\role{R, deSolve, ggplot2, ODEs, statistical validation (RMSE, Pearson, Spearman)}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Model Adaptation}: Adapted a published tropical ODE compartment model to a subtropical geography to simulate \textit{Aedes aegypti} population dynamics in Collier County, Florida under temperature and rainfall effects
+  \item \textbf{Validation}: Validated the model against 53 weeks of local mosquito-surveillance data (RMSE=1.65, Pearson r=0.29, Spearman $\rho$=0.30), optimizing time-lag ($\tau=-2$ weeks) and a rainfall scaling factor to quantify model performance
+  \item \textbf{Outcome}: Completed final-year project proposing model improvements (incorporating anthropogenic water sources, spatial heterogeneity, and uncertainty quantification) to inform vector control and disease prevention research
+\end{itemize}
+
+\entry{Drivers of Change in North Atlantic Fisheries Data and Food Web Construction}{2025.01 - 2025.02}{}{London}
+\role{Excel, literature review, food web analysis}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Data Analysis}: Analyzed a 90-year time series across 8 fish species from ICES North Sea surveys, quantifying species vulnerability (e.g. sole declined ~40\% from 1990-2000 due to bycatch and slow maturity)
+  \item \textbf{Synthesis}: Synthesized literature evidence on the effects of policy, climate, and fishing activity; constructed and annotated a food web of ecological processes
+  \item \textbf{Outcome}: Proposed the common guillemot as an indicator species; report received high marks and distinction, informing fisheries resource management
+\end{itemize}
+
+\entry{Macroecology of Hummingbirds: Testing Latitudinal Gradients and Ecological Rules}{2024.10 - 2024.12}{}{London}
+\role{R, ggplot2, caper, GLM, PGLS}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Hypothesis Testing}: Tested the latitudinal diversity gradient (LDG), Bergmann's rule, and Rapoport's rule using AVONET data and a phylogenetic tree
+  \item \textbf{Modelling}: Built species-richness hotspot maps and applied GLM and PGLS to analyze relationships between body mass, range size, and latitude
+  \item \textbf{Findings}: Results strongly supported the LDG; showed Bergmann's rule was significant under a naive GLM but lost significance once phylogenetic signal was controlled for (PGLS), highlighting the role of migration and ecological specialization
+\end{itemize}
+
+\entry{Effect of Environmental Flower Colour Ratios on Insect Colour Preference}{2024.09 - 2024.10}{}{Cape Town}
+\role{Field experiment, R (t-test, Pearson correlation)}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Experimental Design}: Designed a 5-colour pan-trap field experiment across 6 sites during a South Africa field course to study insect flower-visiting colour preferences relative to environmental flower colour ratios
+  \item \textbf{Results}: Yellow, blue, and white traps all significantly attracted insects over baseline (p$<$0.001); yellow capture rate was positively correlated with the proportion of yellow flowers in the environment (r=0.369, p=0.027)
+  \item \textbf{Conclusion}: Supported the hypothesis that insects use the most common flower colour in the environment as a foraging cue, deepening understanding of pollination ecology
+\end{itemize}
+
+\entry{Review: Drivers, Impacts, and Conservation Strategies for Insect Decline}{2024.03 - 2025.06}{}{London}
+\role{Literature review, critical analysis}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Literature Review}: Reviewed 70+ papers, systematically analyzing drivers such as habitat loss, pesticide use, and climate change, including a global meta-analysis reporting ~2.5\%/year insect biomass decline
+  \item \textbf{Impact Assessment}: Assessed the impact of insect decline on ecosystem services (pollination, nutrient cycling), agriculture, and human health
+  \item \textbf{Critical Analysis}: Critically evaluated a "winners and losers" counter-narrative and geographic\slash taxonomic reporting bias, proposing future research and policy directions
+\end{itemize}
+
+\entry{Effects of Temperature and Substrate on Sea Anemone Startle Behaviour}{2024.05 - 2024.06}{}{Plymouth}
+\role{R, Wilcoxon test, behavioural experiment}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Experimental Design}: Measured startle response time (SRT) of 52 sea anemones under controlled temperature and substrate conditions, with inter-observer reliability testing (ICC=0.949)
+  \item \textbf{Results}: Elevated temperature significantly shortened SRT (Wilcoxon p=0.017), indicating ``bolder'' behaviour; substrate had no significant effect
+  \item \textbf{Conclusion}: Findings reveal the effects of rising environmental temperature and metabolic rate changes on marine animal behaviour
+\end{itemize}
+
+\entry{Effect of Temperature Exposure Duration on Cricket Aggressive Behaviour}{2024.03 - 2024.03}{}{London}
+\role{R, GLM (Poisson regression), behavioural observation}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Experimental Design}: Independently designed an experiment to test the effect of different temperature exposure durations on aggressive behaviour in Mediterranean field crickets
+  \item \textbf{Results}: High temperature reduced encounter frequency (p=0.040) and duration (p=0.013); exposure time showed a negative-effect trend
+  \item \textbf{Conclusion}: Provided evidence for understanding the immediate effects of warming on insect behaviour
+\end{itemize}
+
+\entry{Ecological Modelling and Population Dynamics Simulation}{2024.01 - 2024.02}{}{London}
+\role{R, ggplot2, Lotka-Volterra, logistic growth model}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Levins Metapopulation Model}: Built and simulated occupancy dynamics across infinite patches, analyzing the balance between colonization and extirpation
+  \item \textbf{Fisheries Harvesting Model}: Simulated fixed-quota and fixed-effort harvesting strategies based on a logistic growth model, calculating maximum sustainable yield (MSY)
+  \item \textbf{Resource Competition Model}: Simulated competition between two species for a shared resource, validating R* theory and analyzing competitive exclusion
+  \item \textbf{Lotka-Volterra Predator-Prey Model}: Extended a 2-species model to a 3-species predation chain with stochasticity and time lags, visualizing population cycles
+  \item \textbf{Results}: All four modelling projects scored 90+ (up to 94), demonstrating solid skills in differential equation modelling, algorithm implementation, and results visualization; proficient in using R for dynamic system simulation, parameter optimization, and multi-scenario analysis
+\end{itemize}
+
+\entry{Review: Applications and Limitations of Inbred Mouse Strains in Medical Research}{2023.11 - 2023.12}{}{London}
+\role{Literature review, genetic analysis}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Literature Synthesis}: Systematically described the generation principles, medical applications, and representative case studies of inbred mice
+  \item \textbf{Critical Analysis}: Critically analyzed limitations, including differences from humans, inbreeding depression, and ethical issues
+  \item \textbf{Outcome}: Completed review paper with distinction, demonstrating critical thinking and scientific writing skills
+\end{itemize}
+
+\entry{Viral Fingerprinting: Population Genetics Analysis Using HERV-K solo-LTR Polymorphism}{2023.11 - 2023.12}{}{London}
+\role{PCR, gel electrophoresis, population genetics analysis}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Lab Work}: Detected genomic polymorphisms across 5 primer sets using PCR and gel electrophoresis; performed population genetics analysis with F$_{ST}$ and HWE ($\chi^2$ tests)
+  \item \textbf{Analysis}: Evaluated the potential and challenges of HERV-K solo-LTR as a population genetic and forensic marker
+  \item \textbf{Outcome}: Completed experiments and data analysis; results received distinction
+\end{itemize}
+
+\entry{Bioinformatic Analysis of OCA1A Albinism}{2023.10 - 2023.11}{}{London}
+\role{NCBI, OMIM, Ensembl, UniProt, AlphaFold, ClinVar}{}
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Structural Analysis}: Analyzed the effect of TYR gene mutations on tyrosinase structure and function, focusing on copper-binding domain mutations, using AlphaFold structural predictions
+  \item \textbf{Database Integration}: Used multiple databases for variant annotation, population frequency analysis, and cross-species comparison
+  \item \textbf{Outcome}: Completed a bioinformatics report, developing skills in multi-database integration, protein structure prediction, and evolutionary conservation analysis
+\end{itemize}
+
+\section{Skills \& Other}
+\entrySkillsSep
+\begin{itemize}[parsep=0.2ex]
+  \item \textbf{Python \& Tooling}: Python (primary language), Git, virtual environments, Claude Code / Cursor for AI-assisted development; multi-backend LLM integration (Gemini API, Ollama local inference, OpenAI-compatible APIs, HuggingFace multimodal models), prompt engineering, JSON Schema validation, pytest testing, async subprocess orchestration with JSON-based config/state tracking, environment-variable-based API key management
+  \item \textbf{Web Development}: FastAPI (routers/services architecture), React, TypeScript, Vite, Tailwind CSS
+  \item \textbf{Molecular \& Biochemical Techniques}: PCR and gel electrophoresis (multi-primer genotyping, e.g. 5-primer-set solo-LTR detection), DNA/RNA extraction (Qiagen kits), protein electrophoresis, Western blotting; population genetics analysis (F$_{ST}$, Hardy-Weinberg equilibrium/$\chi^2$ tests); variant annotation \& protein structure analysis across NCBI, OMIM, Ensembl, UniProt, ClinVar, and AlphaFold
+  \item \textbf{Ecology \& Fieldwork}: field experimental design (e.g. multi-site pan-trap colour-preference experiments), behavioural assays with inter-observer reliability testing (ethogram scoring, startle-response measurement), biodiversity/environmental surveying, macroecology and phylogenetic comparative analysis (AVONET-scale trait data, PGLS)
+  \item \textbf{Data Analysis \& Modelling}: R (ggplot2, dplyr, caper, ape, vegan, deSolve), statistical inference (GLM/Poisson regression, PGLS, Wilcoxon signed-rank, t-tests, Pearson/Spearman correlation), ODE- and difference-equation-based population dynamics modelling (metapopulation, predator-prey, logistic growth \& MSY, resource competition)
+  \item \textbf{Languages}: English (IELTS 7.5 overall), Mandarin Chinese (native), French (A2) \textbar\ \textbf{Interests}: piano, photography, skiing
+\end{itemize}
+
+\end{document}
